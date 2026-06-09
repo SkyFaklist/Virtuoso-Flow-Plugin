@@ -16,7 +16,8 @@ license = { text = "see repository LICENSE" }
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["pytest>=7"]
+validate = ["jsonschema>=4"]
+dev = ["pytest>=7", "jsonschema>=4", "PyYAML>=6"]
 
 [project.scripts]
 vfp = "vfp_tunnel.cli:main"

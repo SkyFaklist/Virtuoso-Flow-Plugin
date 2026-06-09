@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "context.schema.json",
+  "title": "VFP Design Context",
+  "description": "Current schematic / ADE context exported from the Virtuoso Flow Plugin to VFP Tunnel (RPC: design.context.update).",
+  "type": "object",
+  "required": ["schema_version", "cellview"],
+  "properties": {
+    "schema_version": { "type": "string", "const": "0.1" },
+    "source": { "type": "string" },
+    "timestamp": { "type": "string", "description": "ISO-8601 timestamp" },
+    "cellview": { "$ref": "#/$defs/cellview" },
+    "instances": { "type": "array", "items": { "$ref": "#/$defs/instance" } },
+    "ports": { "type": "array", "items": { "$ref": "#/$defs/port" } },
+    "nets": { "type": "array", "items": { "$ref": "#/$defs/net" } },
+    "ade": { "$ref": "#/$defs/ade" },
+    "last_result": {
+      "type": "object",
+      "properties": { "available": { "type": "boolean" } }
+    }
+  },
+  "$defs": {
+    "cellview": {
+      "type": "object",
+      "required": ["lib", "cell", "view"],
+      "properties": {
+        "lib": { "type": "string" },
+        "cell": { "type": "string" },
+        "view": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "instance": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string" },
+        "master": { "$ref": "#/$defs/cellview" },
+        "params": {
+          "type": "object",
+          "description": "Device/instance parameters (e.g. w, l, m, nf).",
+          "additionalProperties": { "type": ["string", "number", "boolean"] }
+        },
+        "nets": {
+          "type": "object",
+          "description": "Terminal name -> connected net name.",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    },
+    "port": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string" },
+        "direction": { "type": "string", "enum": ["input", "output", "inputOutput", "switch", "jumper", "unused"] }
+      }
+    },
+    "net": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string" },
+        "sigType": { "type": "string" }
+      }
+    },
+    "ade": {
+      "type": "object",
+      "properties": {
+        "available": { "type": "boolean" },
+        "active_test": { "type": ["string", "null"] },
+        "tests": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

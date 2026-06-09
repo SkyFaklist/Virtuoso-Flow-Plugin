@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "result.schema.json",
+  "title": "VFP Simulation Result",
+  "description": "Parsed simulation metrics plus constraint evaluation for one test.",
+  "type": "object",
+  "required": ["schema_version", "metrics"],
+  "properties": {
+    "schema_version": { "type": "string", "const": "0.1" },
+    "result_id": { "type": "string" },
+    "source": { "type": "string", "description": "e.g. 'spectre', 'ade', 'manual'" },
+    "cellview": { "$ref": "#/$defs/cellview" },
+    "test": { "type": "string" },
+    "metrics": {
+      "type": "object",
+      "description": "Metric name -> numeric value (e.g. A0_dB, UGB_MHz, PM_deg, power_mW).",
+      "additionalProperties": { "type": "number" }
+    },
+    "constraints": {
+      "type": "object",
+      "properties": {
+        "overall": { "type": "string", "enum": ["pass", "fail"] },
+        "items": { "type": "array", "items": { "$ref": "#/$defs/constraint_item" } }
+      }
+    },
+    "artifacts": {
+      "type": "object",
+      "description": "Label -> path of a stored artifact (log, metrics, ...).",
+      "additionalProperties": { "type": "string" }
+    }
+  },
+  "$defs": {
+    "cellview": {
+      "type": "object",
+      "required": ["lib", "cell", "view"],
+      "properties": {
+        "lib": { "type": "string" },
+        "cell": { "type": "string" },
+        "view": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "constraint_item": {
+      "type": "object",
+      "required": ["metric", "status"],
+      "properties": {
+        "metric": { "type": "string" },
+        "value": { "type": "number" },
+        "status": { "type": "string", "enum": ["pass", "fail"] },
+        "reason": { "type": "string" }
+      }
+    }
+  }
+}
