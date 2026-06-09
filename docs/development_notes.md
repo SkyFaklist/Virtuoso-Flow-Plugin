@@ -36,7 +36,7 @@ dependency.
 - `skill/vfp_menu.il` — "Virtuoso Flow" menu; CIW + schematic install.
 - `skill/vfp_dashboard.il` — dashboard form; live lib/cell/view.
 - The remaining `skill/vfp_*.il` files are loadable stubs whose function
-  signatures match `project.md` §8 and log "not implemented yet".
+  signatures match their planned module API and log "not implemented yet".
 
 ## Milestone 2 — what's implemented (tunnel side)
 
@@ -63,9 +63,9 @@ Default endpoint `127.0.0.1:47891` (override via `--host/--port` or
 `tunnel start` spawns the daemon detached (cross-platform: `start_new_session`
 on POSIX, `DETACHED_PROCESS` on Windows) and polls `tunnel.status` until ready.
 
-Verified: `pytest tests/` (20 passing) on Windows 3.14, plus a full CLI
-smoke test (start→status→register→ping→list→stop) on **both** Windows 3.14
-and the server's Python 3.6.8.
+Verified at this milestone: `pytest tests/` (20 tests then) on Windows
+3.14, plus a full CLI smoke test (start→status→register→ping→list→stop) on
+**both** Windows 3.14 and the server's Python 3.6.8.
 
 ## Milestone 2b — SKILL ↔ tunnel bridge
 

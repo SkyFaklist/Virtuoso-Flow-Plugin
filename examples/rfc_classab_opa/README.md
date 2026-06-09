@@ -2,7 +2,7 @@
 
 A minimal end-to-end example used to exercise the VFP MVP loop. It does
 not depend on a real PDK — the JSON/YAML files are illustrative fixtures
-that match the schemas in [`project.md`](../../project.md) §10.
+that conform to the JSON Schemas in [`../../schemas`](../../schemas).
 
 ## Files
 
@@ -15,10 +15,14 @@ that match the schemas in [`project.md`](../../project.md) §10.
 ## Intended demo flow (once milestones land)
 
 ```bash
-# Milestone 2+: tunnel running
+# Milestone 2: tunnel running
 vfp tunnel start
 
-# Milestone 4: submit the proposal
+# Milestone 3: load a design context (or export one from Virtuoso)
+vfp context import --file examples/rfc_classab_opa/sample_context.json
+vfp context show
+
+# Milestone 4 (not yet implemented): submit the proposal
 vfp proposal create --file examples/rfc_classab_opa/sample_proposal.json
 vfp proposal list
 ```

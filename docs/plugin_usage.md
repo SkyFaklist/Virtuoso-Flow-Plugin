@@ -2,21 +2,22 @@
 
 ## Requirements
 
-- Cadence Virtuoso (developed against the IC23.1 SKILL API; see the
-  bundled reference under `docs/IC231_gui_plugin_docs/`).
+- Cadence Virtuoso (developed against the IC23.1 SKILL API).
+- VFP Tunnel running (see the [tunnel README](../tunnel/README.md)) for
+  Connect / Export Context.
 
-## Loading (Milestone 1)
+## Loading
 
 In the Virtuoso **CIW**, either run the one-shot loader:
 
 ```lisp
-load("F:/VBL/Virtuoso-Flow-Plugin/scripts/load_vfp.il")
+load("/path/to/Virtuoso-Flow-Plugin/scripts/load_vfp.il")
 ```
 
 or load the entry point and initialize manually:
 
 ```lisp
-load("F:/VBL/Virtuoso-Flow-Plugin/skill/vfp_init.il")
+load("/path/to/Virtuoso-Flow-Plugin/skill/vfp_init.il")
 vfpInit()
 ```
 
@@ -29,7 +30,7 @@ vfpInit()
 - A **Virtuoso Flow** pulldown menu appears in the CIW banner (and in any
   schematic window you open afterwards).
 - `Virtuoso Flow → Open Dashboard` opens a panel showing:
-  - VFP Tunnel connection status (currently always *Disconnected*),
+  - VFP Tunnel connection status,
   - the current library / cell / view,
   - placeholders for ADE test and latest result,
   - **Connect / Export / Refresh / Rollback** buttons.
@@ -37,13 +38,23 @@ vfpInit()
 Open a schematic, then click **Refresh** on the dashboard — the
 lib/cell/view fields update to the schematic you are editing.
 
+## Connect and export context
+
+With the tunnel running:
+
+1. Click **Connect** — registers the Virtuoso session; the status field
+   shows `Connected (s_…)` and a one-line tunnel summary.
+2. With a schematic open, click **Export** — sends the schematic's
+   instances, parameters, and connectivity to the tunnel. Verify on the
+   tunnel host with `scripts/vfp context show`.
+
 ## Status
 
-Milestone 1 (plugin skeleton: menu + dashboard + lib/cell/view) is
-implemented. Menu items and buttons for Connect, Export, Proposals,
-Apply, Rollback, and Run Test currently log a "not implemented yet"
-message; they are wired up in later milestones. See
-[`development_notes.md`](development_notes.md) for the roadmap.
+Milestones 1–3 are implemented: menu + dashboard + lib/cell/view
+(M1), tunnel **Connect** (M2), and **Export Context** (M3). The remaining
+buttons/menu items — Proposals, Apply, Rollback, Run Test — currently log
+a "not implemented yet" message; they are wired up in later milestones.
+See [`development_notes.md`](development_notes.md) for the roadmap.
 
 ## Unloading
 
@@ -61,5 +72,7 @@ dashboard.
 | `vfpInit()` | Load modules, init state, install menu. |
 | `vfpOpenDashboard()` | Open / raise the dashboard. |
 | `vfpUpdateDashboard()` | Refresh dashboard fields from the current window. |
+| `vfpConnect()` | Register the Virtuoso session with VFP Tunnel. |
+| `vfpExportDesignContext()` | Send the current schematic context to the tunnel. |
 | `vfpUnload()` | Remove menu and close dashboard. |
 | `vfpGetVersion()` | Plugin version string. |
