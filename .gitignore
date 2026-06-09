@@ -20,8 +20,14 @@ CDS.log
 cds.lib.bak
 
 # Bundled Cadence IC23.1 docs — proprietary; large. Authoritative full
-# copy lives on the design server (see AGENTS.md). Kept locally only.
+# copy lives on the design server. Kept locally only.
 docs/IC231_gui_plugin_docs/
+
+# Internal planning + agent-guidance files — kept out of the repo by
+# request (may reference internal infra). Recover from history if needed.
+project.md
+AGENTS.md
+CLAUDE.md
 
 # Local archives / snapshots
 *.zip
