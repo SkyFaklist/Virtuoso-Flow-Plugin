@@ -50,7 +50,7 @@ Both components live in one repository (monorepo); see
 In the Virtuoso CIW:
 
 ```lisp
-load("F:/VBL/Virtuoso-Flow-Plugin/scripts/load_vfp.il")
+load("$PATH/Virtuoso-Flow-Plugin/scripts/load_vfp.il")
 ```
 
 A **Virtuoso Flow** menu appears; `Open Dashboard` shows connection
