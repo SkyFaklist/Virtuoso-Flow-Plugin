@@ -206,6 +206,7 @@ allows MVP contract changes to land atomically.
 
 ## Documentation
 
+- [Handoff & roadmap](docs/HANDOFF.md) — start here to pick up the project
 - [Plugin usage](docs/plugin_usage.md)
 - [Development notes](docs/development_notes.md)
 - [Tunnel README](tunnel/README.md)
