@@ -22,7 +22,7 @@ dependency.
 | # | Milestone | Status |
 |---|-----------|--------|
 | 1 | Virtuoso plugin skeleton (menu, dashboard, lib/cell/view) | **done** |
-| 2 | VFP Tunnel skeleton (CLI, JSON-RPC, session) | not started |
+| 2 | VFP Tunnel skeleton (CLI, JSON-RPC, session) | **tunnel done**; SKILL rpc client (M2b) next |
 | 3 | Design context export | not started |
 | 4 | Proposal workflow | not started |
 | 5 | Transactional parameter modification + rollback | not started |
@@ -37,6 +37,40 @@ dependency.
 - `skill/vfp_dashboard.il` — dashboard form; live lib/cell/view.
 - The remaining `skill/vfp_*.il` files are loadable stubs whose function
   signatures match `project.md` §8 and log "not implemented yet".
+
+## Milestone 2 — what's implemented (tunnel side)
+
+Python daemon + `vfp` CLI, **stdlib-only and Python 3.6+** (the design
+server runs CentOS 7 / 3.6.8, and the tunnel must run there so the
+in-Virtuoso SKILL client can reach it on localhost).
+
+- `tunnel/vfp_tunnel/rpc/jsonrpc.py` — JSON-RPC 2.0 dispatcher.
+- `tunnel/vfp_tunnel/rpc/transport.py` — newline-framed JSON over TCP:
+  threaded server + a small blocking client.
+- `tunnel/vfp_tunnel/session/registry.py` — session registry (in-memory +
+  JSON persistence under `.vfp/sessions/`).
+- `tunnel/vfp_tunnel/daemon.py` — `Tunnel`: methods + lifecycle/state file.
+  Methods: `session.register/ping/status/list/current`,
+  `tunnel.status/shutdown`.
+- `tunnel/vfp_tunnel/cli.py` — `vfp tunnel start|stop|status`,
+  `vfp session list|current`, `vfp ping`.
+- `scripts/vfp` — runs the CLI without installing (sets `PYTHONPATH`);
+  the no-install path for the 3.6 server. `start_tunnel.sh`/`stop_tunnel.sh`
+  wrap it.
+
+Default endpoint `127.0.0.1:47891` (override via `--host/--port` or
+`VFP_HOST/VFP_PORT`); artifact root `./.vfp` (override via `VFP_HOME`).
+`tunnel start` spawns the daemon detached (cross-platform: `start_new_session`
+on POSIX, `DETACHED_PROCESS` on Windows) and polls `tunnel.status` until ready.
+
+Verified: `pytest tests/` (15 passing) on Windows 3.14, plus a full CLI
+smoke test (start→status→register→ping→list→stop) on **both** Windows 3.14
+and the server's Python 3.6.8.
+
+**Next (M2b):** SKILL-side `vfp_rpc_client.il` — speak the same
+newline-framed JSON-RPC from inside Virtuoso (likely via an `ipcBeginProcess`
+helper, since base SKILL has no raw TCP sockets) and wire the dashboard
+Connect/Refresh to `session.register` / `tunnel.status`.
 
 ## SKILL implementation notes
 

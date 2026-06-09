@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Run the VFP Tunnel CLI without installing the package (e.g. on the design
+# server with the system python3). Adds tunnel/ to PYTHONPATH so the
+# detached daemon subprocess can import vfp_tunnel too.
+#
+#   scripts/vfp tunnel start
+#   scripts/vfp tunnel status
+#   scripts/vfp session list
+#
+# Override the interpreter with VFP_PYTHON (default: python3).
+set -euo pipefail
+here="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+export PYTHONPATH="$here/tunnel${PYTHONPATH:+:$PYTHONPATH}"
+exec "${VFP_PYTHON:-python3}" -m vfp_tunnel.cli "$@"
