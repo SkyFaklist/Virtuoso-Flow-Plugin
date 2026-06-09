@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "constraint.schema.json",
+  "title": "VFP Constraint File",
+  "description": "Metric limits, DC-op saturation checks, and modify permissions. Authored as YAML (see examples/), this schema describes the parsed structure.",
+  "type": "object",
+  "required": ["schema_version", "metrics"],
+  "properties": {
+    "schema_version": { "type": "string", "const": "0.1" },
+    "design": { "$ref": "#/$defs/cellview" },
+    "metrics": {
+      "type": "object",
+      "description": "Metric name -> min/max limits.",
+      "additionalProperties": { "$ref": "#/$defs/limit" }
+    },
+    "dcop": {
+      "type": "object",
+      "properties": {
+        "require_saturation": {
+          "type": "object",
+          "properties": {
+            "devices": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "min_sat_margin_mV": { "type": "number" }
+      }
+    },
+    "permissions": {
+      "type": "object",
+      "properties": {
+        "allow_modify": { "type": "array", "items": { "type": "string" } },
+        "deny_modify": { "type": "array", "items": { "type": "string" } }
+      },
+      "description": "Glob-like patterns over '<instance>.<param>', e.g. 'M*.w', 'VDD.*'."
+    }
+  },
+  "$defs": {
+    "cellview": {
+      "type": "object",
+      "required": ["lib", "cell", "view"],
+      "properties": {
+        "lib": { "type": "string" },
+        "cell": { "type": "string" },
+        "view": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "limit": {
+      "type": "object",
+      "properties": {
+        "min": { "type": "number" },
+        "max": { "type": "number" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

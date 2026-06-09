@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "transaction.schema.json",
+  "title": "VFP Transaction",
+  "description": "Before/after record of an applied proposal, enabling rollback.",
+  "type": "object",
+  "required": ["schema_version", "transaction_id", "status"],
+  "properties": {
+    "schema_version": { "type": "string", "const": "0.1" },
+    "transaction_id": { "type": "string" },
+    "proposal_id": { "type": "string" },
+    "status": {
+      "type": "string",
+      "enum": ["applied", "failed", "rolled_back"]
+    },
+    "cellview": { "$ref": "#/$defs/cellview" },
+    "before": { "type": "array", "items": { "$ref": "#/$defs/param_value" } },
+    "after": { "type": "array", "items": { "$ref": "#/$defs/param_value" } },
+    "timestamp": { "type": "string", "description": "ISO-8601 timestamp" },
+    "linked_results": {
+      "type": "array",
+      "items": { "type": "string", "description": "result_id" }
+    }
+  },
+  "$defs": {
+    "cellview": {
+      "type": "object",
+      "required": ["lib", "cell", "view"],
+      "properties": {
+        "lib": { "type": "string" },
+        "cell": { "type": "string" },
+        "view": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "param_value": {
+      "type": "object",
+      "required": ["instance", "param", "value"],
+      "properties": {
+        "instance": { "type": "string" },
+        "param": { "type": "string" },
+        "value": { "type": ["string", "number"] }
+      },
+      "additionalProperties": false
+    }
+  }
+}

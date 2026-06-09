@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "proposal.schema.json",
+  "title": "VFP Proposal",
+  "description": "An agent-generated design-modification proposal, reviewed inside Virtuoso before any change is applied.",
+  "type": "object",
+  "required": ["schema_version", "proposal_id", "status", "changes"],
+  "properties": {
+    "schema_version": { "type": "string", "const": "0.1" },
+    "proposal_id": { "type": "string" },
+    "created_by": { "type": "string", "description": "e.g. 'agent', 'cli', a user name" },
+    "status": { "$ref": "#/$defs/status" },
+    "cellview": { "$ref": "#/$defs/cellview" },
+    "reason": { "type": "string" },
+    "changes": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/change" }
+    },
+    "expected_effect": {
+      "type": "object",
+      "description": "Free-form expected metric movements and risk notes.",
+      "additionalProperties": { "type": "string" }
+    },
+    "requires_user_approval": { "type": "boolean", "default": true }
+  },
+  "$defs": {
+    "status": {
+      "type": "string",
+      "enum": ["pending", "approved", "rejected", "applied", "failed", "rolled_back"]
+    },
+    "cellview": {
+      "type": "object",
+      "required": ["lib", "cell", "view"],
+      "properties": {
+        "lib": { "type": "string" },
+        "cell": { "type": "string" },
+        "view": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "change": {
+      "type": "object",
+      "required": ["type", "instance", "param", "after"],
+      "properties": {
+        "type": { "type": "string", "enum": ["set_instance_param"] },
+        "instance": { "type": "string" },
+        "param": { "type": "string" },
+        "before": { "type": ["string", "number"] },
+        "after": { "type": ["string", "number"] }
+      },
+      "additionalProperties": false
+    }
+  }
+}
