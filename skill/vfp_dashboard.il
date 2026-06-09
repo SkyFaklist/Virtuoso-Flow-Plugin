@@ -63,7 +63,10 @@ defun( vfpUpdateDashboard ()
         vfpLog("dashboard not open; nothing to refresh") nil
       else
         cv = vfpGetCurrentCellView()
-        form->vfpConnVal->value = if( vfpStateGet('connected) "Connected" "Disconnected" )
+        form->vfpConnVal->value =
+          if( vfpStateGet('connected)
+            sprintf(nil "Connected (%s)" or(vfpStateGet('sessionId) "?"))
+            "Disconnected" )
         form->vfpLibVal->value  = if( cv cv~>libName "(none)" )
         form->vfpCellVal->value = if( cv cv~>cellName "" )
         form->vfpViewVal->value = if( cv cv~>viewName "" )
@@ -77,6 +80,16 @@ defun( vfpCloseDashboard ()
   let( (form)
     form = vfpStateGet('dashForm)
     when( form errset( hiFormCancel(form) ) )
+    t
+  )
+)
+
+;; Set the multi-line result/status area (used by the RPC client to show
+;; the tunnel summary or an error). Safe to call when the form is closed.
+defun( vfpDashboardSetResult (text)
+  let( (form)
+    form = vfpStateGet('dashForm)
+    when( form form->vfpResVal->value = text )
     t
   )
 )
