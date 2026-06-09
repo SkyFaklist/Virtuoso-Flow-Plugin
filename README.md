@@ -21,22 +21,23 @@ simulation results, and rolled back when needed.
 
 ## Current Status
 
-The repository is currently at the Milestone 2 MVP stage.
+The repository is currently at the Milestone 3 stage.
 
 | Milestone | Status |
 | --- | --- |
 | Virtuoso plugin skeleton: menu, dashboard, lib/cell/view | Done |
 | VFP Tunnel: CLI, JSON-RPC, session state, SKILL bridge | Done |
-| Design context export | Not started |
+| Design context export | Done |
 | Proposal workflow | Not started |
 | Transactional parameter modification and rollback | Not started |
 | Result and constraint display | Not started |
 | ADE/Spectre integration | Not started |
 
-Milestone 2 is implemented and covered by local tests. The remaining
-manual completion check is clicking **Connect** inside the Virtuoso GUI
-against a running tunnel. The lower-level SKILL helper and tunnel RPC
-paths have already been exercised outside the GUI.
+Milestones 1–3 are implemented and covered by local tests (28 passing).
+The remaining manual completion checks are GUI actions inside Virtuoso:
+clicking **Connect** to register a session, and **Export Context** to push
+the current schematic to the tunnel. The lower-level SKILL helper and
+tunnel RPC paths for both are already exercised outside the GUI.
 
 ## Requirements
 
@@ -89,7 +90,7 @@ with `VFP_HOME`.
 In the Virtuoso CIW, load the one-shot loader:
 
 ```lisp
-load("F:/VBL/Virtuoso-Flow-Plugin/scripts/load_vfp.il")
+load("/path/to/Virtuoso-Flow-Plugin/scripts/load_vfp.il")
 ```
 
 Use forward slashes in SKILL paths, even on Windows. The loader resolves
@@ -99,7 +100,7 @@ calls `vfpInit()`.
 You can also load the entry point manually:
 
 ```lisp
-load("F:/VBL/Virtuoso-Flow-Plugin/skill/vfp_init.il")
+load("/path/to/Virtuoso-Flow-Plugin/skill/vfp_init.il")
 vfpInit()
 ```
 
@@ -115,7 +116,7 @@ scripts/vfp tunnel status
 Then load the plugin in Virtuoso:
 
 ```lisp
-load("$PATH/Virtuoso-Flow-Plugin/scripts/load_vfp.il")
+load("/path/to/Virtuoso-Flow-Plugin/scripts/load_vfp.il")
 ```
 
 A **Virtuoso Flow** menu appears in the CIW and schematic windows. Choose
@@ -129,7 +130,9 @@ A **Virtuoso Flow** menu appears in the CIW and schematic windows. Choose
 
 Open a schematic and click **Refresh** to update the library/cell/view
 fields. With the tunnel running, click **Connect** to register the
-Virtuoso session through the SKILL RPC bridge.
+Virtuoso session through the SKILL RPC bridge, then **Export** to send the
+current schematic's instances, parameters, and connectivity to the tunnel
+as a design context.
 
 Useful SKILL entry points:
 
@@ -139,6 +142,7 @@ Useful SKILL entry points:
 | `vfpOpenDashboard()` | Open or raise the dashboard. |
 | `vfpUpdateDashboard()` | Refresh dashboard fields from the current window. |
 | `vfpConnect()` | Register the Virtuoso session with VFP Tunnel. |
+| `vfpExportDesignContext()` | Send the current schematic context to the tunnel. |
 | `vfpPing()` | Ping the registered tunnel session. |
 | `vfpUnload()` | Remove menus and close the dashboard. |
 | `vfpGetVersion()` | Return the plugin version string. |
@@ -151,6 +155,8 @@ scripts/vfp tunnel status
 scripts/vfp ping
 scripts/vfp session list
 scripts/vfp session current
+scripts/vfp context show          # latest exported design context
+scripts/vfp context import --file <ctx.json>   # load a context (testing)
 scripts/vfp tunnel stop
 ```
 
@@ -162,21 +168,25 @@ Run the Python tests from the repository root:
 pytest tests/
 ```
 
-Current Milestone 2 verification:
+Current verification (Milestones 1–3):
 
-- `pytest tests/`: 20 passing on Windows Python 3.14.
-- Full CLI smoke test on Windows Python 3.14.
-- Full CLI smoke test on the design server Python 3.6.8.
+- `pytest tests/`: 28 passing on Windows Python 3.14.
+- Full CLI smoke test on Windows Python 3.14 and the design server
+  Python 3.6.8.
 - SKILL helper emits valid s-expressions for `tunnel.status`,
-  `session.register`, `session.ping`, method-not-found errors, and
-  unreachable-tunnel errors.
+  `session.register`, `session.ping`, `design.context.update`,
+  method-not-found errors, and unreachable-tunnel errors.
+- Design-context encoder output conforms to `schemas/context.schema.json`;
+  `vfp context import` / `vfp context show` round-trips a context through
+  the daemon.
 
-Manual GUI completion check:
+Manual GUI completion checks:
 
 1. On the design server, run `scripts/vfp tunnel start`.
-2. Reload the plugin in Virtuoso.
-3. Open the dashboard and click **Connect**.
-4. Confirm the dashboard shows a connected session and tunnel summary.
+2. Reload the plugin in Virtuoso and open the dashboard.
+3. Click **Connect** and confirm a connected session and tunnel summary.
+4. Open a schematic, click **Export** (Export Context), and confirm the
+   payload with `scripts/vfp context show`.
 
 ## Repository Layout
 
@@ -186,7 +196,7 @@ tunnel/     Python VFP Tunnel daemon, JSON-RPC transport, and CLI
 schemas/    Shared JSON Schema contracts
 examples/   Example design fixtures and proposal/context samples
 scripts/    Loader and tunnel convenience wrappers
-docs/       Development notes, usage docs, and bundled SKILL references
+docs/       Development notes and usage docs
 tests/      Python tests for VFP Tunnel and shared schemas
 ```
 
