@@ -29,9 +29,15 @@ project.md
 AGENTS.md
 CLAUDE.md
 docs/HANDOFF.md
+TODO.md
+HANDOFF.local.md
+
+# Local scratch from agent-driven GUI/bridge testing (scripts + screenshots)
+gui_test/
 
 # Local archives / snapshots
 *.zip
+*.rar
 
 # Editors / OS
 .vscode/
