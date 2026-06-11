@@ -1,14 +1,15 @@
-;; ADE interaction is best-effort: the asi* calls below target ADE-L and MUST
-;; be confirmed in a live Virtuoso/ADE session. Every asi* call is wrapped in
-;; errset so a missing/renamed API degrades to the tunnel run flow instead of
-;; erroring. Result harvesting from raw sim output is simulator-specific, so
-;; metrics are imported via `vfp run import-result` rather than parsed here.
+;; ADE interaction. The asi* signatures are verified against the IC23.1 ADE
+;; SKILL finder (asiGetCurrentSession() => session/nil; asiRunSimulation(
+;; o_session)); whether a session is actually present still depends on a live
+;; ADE window, so each call is errset-wrapped and degrades to the tunnel run
+;; flow if no session exists. Result harvesting from raw sim output is
+;; simulator-specific, so metrics are imported via `vfp run import-result`.
 
+;; asiGetCurrentSession takes NO arguments (verified against the IC23.1 ADE
+;; SKILL finder: maeSKILLref.fnd -> "asiGetCurrentSession() => o_session/nil").
+;; It returns the active ADE session, or nil if there is none.
 defun( vfpAdeSession ()
-  let( (win)
-    win = hiGetCurrentWindow()
-    and( win car(errset( asiGetCurrentSession(win) )) )
-  )
+  car(errset( asiGetCurrentSession() ))
 )
 
 defun( vfpGetAdeContext ()
