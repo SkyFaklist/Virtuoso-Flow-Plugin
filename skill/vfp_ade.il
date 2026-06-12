@@ -71,7 +71,7 @@ defun( vfpRunAdeTest (testName)
     ok = car(res)
     payload = cadr(res)
     unless( ok
-      hiDisplayAppDBox(?name 'vfpErrDBox
+      hiDisplayAppDBox(?name 'vfpErrDBox ?dboxBanner "Virtuoso Flow - Error"
         ?dboxText sprintf(nil "Could not create run:\n%s" vfpFmtError(payload))
         ?buttonLayout 'Close)
       return(nil)
@@ -86,12 +86,12 @@ defun( vfpRunAdeTest (testName)
         errset( asiRunSimulation(s) )
         vfpRpcExec("run.set_status"
           list("--param" sprintf(nil "run_id=%s" runId) "--param" "status=running"))
-        hiDisplayAppDBox(?name 'vfpInfoDBox
+        hiDisplayAppDBox(?name 'vfpInfoDBox ?dboxBanner "Virtuoso Flow"
           ?dboxText sprintf(nil "Run %s started (ADE session).\nWhen the sim finishes, import metrics:\n  vfp run import-result --run %s --file <metrics>"
             runId runId)
           ?buttonLayout 'Close)
       else
-        hiDisplayAppDBox(?name 'vfpInfoDBox
+        hiDisplayAppDBox(?name 'vfpInfoDBox ?dboxBanner "Virtuoso Flow"
           ?dboxText sprintf(nil "Run %s created (no ADE session detected).\nImport metrics when ready:\n  vfp run import-result --run %s --file <metrics>"
             runId runId)
           ?buttonLayout 'Close)
