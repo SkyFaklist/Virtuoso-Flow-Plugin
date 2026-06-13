@@ -24,6 +24,8 @@ from .rpc.errors import NOT_FOUND, PERMISSION_DENIED
 from .rpc.jsonrpc import Dispatcher, INVALID_PARAMS, JsonRpcError
 from .rpc.transport import make_server
 from .session.registry import Registry
+from .sim.job import make_job
+from .sim.job_store import JobStore
 from .sim.manager import ResultStore
 from .sim.metrics import make_result
 from .transaction import permissions as txn_permissions
@@ -46,6 +48,7 @@ class Tunnel:
         self.transactions = TransactionStore()
         self.results = ResultStore()
         self.runs = RunStore()
+        self.jobs = JobStore()
         self.events = EventLog()
         # Default modify-permissions (empty => allow all). Milestone 6's
         # constraint engine will populate this from the constraint file.
@@ -93,6 +96,14 @@ class Tunnel:
         d.register("run.set_status",    self._m_run_set_status)
         d.register("run.attach",        self._m_run_attach)
         d.register("run.import_result", self._m_run_import_result)
+        # Simulation jobs
+        d.register("job.create",      self._m_job_create)
+        d.register("job.list",        self._m_job_list)
+        d.register("job.get",         self._m_job_get)
+        d.register("job.cancel",      self._m_job_cancel)
+        d.register("job.mark_running", self._m_job_mark_running)
+        d.register("job.mark_done",   self._m_job_mark_done)
+        d.register("job.mark_failed", self._m_job_mark_failed)
         # Event stream
         d.register("event.list", self._m_event_list)
         d.register("event.wait", self._m_event_wait)
@@ -477,6 +488,73 @@ class Tunnel:
         self.events.emit("result.updated", {"result_id": result["result_id"]})
         self.events.emit("run.done", {"run_id": rid, "result_id": result["result_id"]})
         return {"run": run, "result": result}
+
+    # ---- simulation job RPC methods ----
+    def _m_job_create(self, params):
+        data = params.get("job")
+        if not isinstance(data, dict):
+            raise JsonRpcError(INVALID_PARAMS, "params.job must be an object")
+        candidate = make_job(data)
+        # Freshness guard: reuse a done job with the same inputs unless the
+        # caller opts out with reuse=false.
+        if params.get("reuse", True):
+            fresh = self.jobs.fresh_done(candidate["inputs_fingerprint"])
+            if fresh is not None:
+                return {"job": fresh, "reused": True}
+        self._validate_or_raise("job", candidate)
+        try:
+            job = self.jobs.add(candidate)
+        except ValueError as e:
+            raise JsonRpcError(INVALID_PARAMS, str(e))
+        self.events.emit("job.created",
+                         {"job_id": job["job_id"], "test": job.get("test")})
+        return {"job": job, "reused": False}
+
+    def _m_job_list(self, params):
+        items = self.jobs.list(status=params.get("status"))
+        return {"jobs": items, "count": len(items)}
+
+    def _m_job_get(self, params):
+        jid = params.get("job_id")
+        if not jid:
+            raise JsonRpcError(INVALID_PARAMS, "params.job_id required")
+        job = self.jobs.get(jid)
+        if job is None:
+            raise JsonRpcError(NOT_FOUND, "unknown job_id: %s" % jid)
+        return {"job": job}
+
+    def _m_job_mark_running(self, params):
+        return {"job": self._job_set("mark_running", params)}
+
+    def _m_job_mark_done(self, params):
+        job = self._job_set("mark_done", params,
+                            result_id=params.get("result_id"),
+                            run_id=params.get("run_id"))
+        self.events.emit("job.done",
+                         {"job_id": job["job_id"], "result_id": job.get("result_id")})
+        return {"job": job}
+
+    def _m_job_mark_failed(self, params):
+        job = self._job_set("mark_failed", params, error=params.get("error"))
+        self.events.emit("job.failed", {"job_id": job["job_id"]})
+        return {"job": job}
+
+    def _m_job_cancel(self, params):
+        job = self._job_set("cancel", params)
+        self.events.emit("job.cancelled", {"job_id": job["job_id"]})
+        return {"job": job}
+
+    def _job_set(self, method, params, **fields):
+        jid = params.get("job_id")
+        if not jid:
+            raise JsonRpcError(INVALID_PARAMS, "params.job_id required")
+        fn = getattr(self.jobs, method)
+        try:
+            return fn(jid, **{k: v for k, v in fields.items() if v is not None})
+        except KeyError as e:
+            raise JsonRpcError(NOT_FOUND, str(e))
+        except ValueError as e:
+            raise JsonRpcError(INVALID_PARAMS, str(e))
 
     # ---- event stream RPC methods ----
     def _heartbeat(self, params):
