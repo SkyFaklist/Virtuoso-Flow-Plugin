@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "job.schema.json",
+  "title": "VFP Simulation Job",
+  "description": "A queued/running simulation job. The freshness guard reuses a done job with the same inputs_fingerprint instead of re-running.",
+  "type": "object",
+  "required": ["schema_version", "job_id", "status"],
+  "properties": {
+    "schema_version": { "type": "string", "const": "0.1" },
+    "job_id": { "type": "string" },
+    "status": {
+      "type": "string",
+      "enum": ["queued", "running", "done", "failed", "cancelled"]
+    },
+    "cellview": { "$ref": "#/$defs/cellview" },
+    "test": { "type": "string", "description": "ADE test / analysis name" },
+    "inputs_fingerprint": {
+      "type": "string",
+      "description": "Opaque digest of the design inputs (from the plugin's dirty-check). Identical fingerprints => the same sim result; the freshness guard reuses a prior done job."
+    },
+    "result_id": { "type": "string", "description": "set when status=done" },
+    "run_id": { "type": "string", "description": "linked artifact run, if any" },
+    "error": { "type": "string", "description": "set when status=failed" },
+    "created_at": { "type": "string" },
+    "updated_at": { "type": "string" }
+  },
+  "$defs": {
+    "cellview": {
+      "type": "object",
+      "required": ["lib", "cell", "view"],
+      "properties": {
+        "lib": { "type": "string" },
+        "cell": { "type": "string" },
+        "view": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  }
+}
