@@ -80,6 +80,10 @@ defun( vfpExtractDesignContext ()
           ;; M11 P4: floating terminals / dead nets / dangling sources.
           "tb_lint"        if( isCallable('vfpLintJson)
                                vfpLintJson(cv) vfpJArr() )
+          ;; M9: is the cellview safe to netlist (dirty-check) + the content
+          ;; fingerprint the tunnel's freshness guard keys on.
+          "sim_preflight"  if( isCallable('vfpSimPreflightJson)
+                               vfpSimPreflightJson(cv "") vfpJObj() )
           "ade"            vfpJObj("available" 'false)
           "last_result"    vfpJObj("available" 'false)
         )

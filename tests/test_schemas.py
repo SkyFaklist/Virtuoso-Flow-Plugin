@@ -111,6 +111,23 @@ def test_context_bad_lint_kind_raises():
         vfp_schemas.validate("context", bad)
 
 
+def test_context_with_sim_preflight_conforms():
+    pytest.importorskip("jsonschema")
+    from vfp_tunnel.rpc import schemas as vfp_schemas
+    ctx = {
+        "schema_version": "0.1",
+        "cellview": {"lib": "L", "cell": "C", "view": "schematic"},
+        "sim_preflight": {
+            "ready": False,
+            "dirty": True,
+            "cellview": "L/C/schematic",
+            "fingerprint": "test=tran;conn=R0.MINUS=net2;params=R0.r=1K",
+            "reason": "L/C/schematic has unsaved changes; save before netlisting",
+        },
+    }
+    assert vfp_schemas.validate("context", ctx) is True
+
+
 def test_transaction_with_checkpoint_conforms():
     pytest.importorskip("jsonschema")
     from vfp_tunnel.rpc import schemas as vfp_schemas
