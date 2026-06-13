@@ -23,6 +23,17 @@
       "description": "Testbench connectivity hazards found by vfpLintTestbench: floating terminals, dead nets, and dangling stimulus sources.",
       "items": { "$ref": "#/$defs/tb_lint_issue" }
     },
+    "sim_preflight": {
+      "type": "object",
+      "description": "Pre-flight from vfpSimPreflight: whether the cellview is safe to netlist (dirty-check) and the content fingerprint the tunnel's freshness guard keys on.",
+      "properties": {
+        "ready": { "type": "boolean", "description": "false when the cellview has unsaved changes." },
+        "dirty": { "type": "boolean" },
+        "cellview": { "type": "string" },
+        "fingerprint": { "type": "string", "description": "Content digest (test + connectivity + CDF params); identical inputs => identical fingerprint." },
+        "reason": { "type": "string" }
+      }
+    },
     "ade": { "$ref": "#/$defs/ade" },
     "last_result": {
       "type": "object",
