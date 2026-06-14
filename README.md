@@ -1,5 +1,9 @@
 # Virtuoso Flow Plugin
 
+<p align="center">
+  <img src="docs/VFP_logo.png" alt="virtuoso-bridge-lite" width="100%"/>
+</p>
+
 Virtuoso Flow Plugin is a **Cadence Virtuoso-native** workflow extension for analog
 and mixed-signal IC design. It adds interactive panels, design-state
 views, proposal review surfaces, and result dashboards directly inside
